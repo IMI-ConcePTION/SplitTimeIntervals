@@ -26,7 +26,6 @@ SlitTimeIntervals <- function(dataset,
   if (!require("data.table")) install.packages("data.table")
   library(data.table)
   
-  # Melting 
   dataset <- dataset[, splitted := 0]
   number_of_intervals <- length(start_intervals) + 1
   i = 1 
