@@ -30,12 +30,54 @@ SlitTimeIntervals <- function(dataset,
   library(lubridate)
   
   # check
-  for (date in c(start_date, end_date, label_of_split_records)) {
+  for (date in c(start_date, end_date, start_intervals)) {
     if(!is.Date(dataset[, get(date)])){
-      stop(("Some variable are not in date format"))
+      stop("One or more date variable are not in date format")
     }
   }
   
+  check_dataset <- copy(dataset)
+  check_dataset <- check_dataset[, check := 0]
+  
+  for (date in start_intervals) {
+    setnames(check_dataset, 
+             date,
+             "tmp_date")
+    
+    check_dataset <- check_dataset[is.na(tmp_date), tmp_date := as.Date("9999-12-31")]
+    
+    setnames(check_dataset, 
+             "tmp_date",
+             date)
+  }
+  
+  setnames(check_dataset, 
+           c(end_date, start_date), 
+           c("end_date", "start_date"))
+  
+  check_dataset <- check_dataset[end_date < start_date, check := 1]
+  check_dataset <- check_dataset[get(start_intervals[[1]]) < start_date, check := 1]
+  check_dataset <- check_dataset[end_date < get(start_intervals[[length(start_intervals)]]) &
+                                   get(start_intervals[[length(start_intervals)]]) !=  as.Date("9999-12-31"),
+                                 check := 1]
+  
+  setnames(check_dataset, 
+           date,
+           "tmp_date")
+  
+  if(length(start_intervals) > 1){
+    for (i in seq(2, length(start_intervals))) {
+      check_dataset <- check_dataset[get(start_intervals[[i-1]]) > get(start_intervals[[i]]) | 
+                                       (get(start_intervals[[i]]) > end_date &
+                                        get(start_intervals[[i]]) !=  as.Date("9999-12-31")), 
+                                     check := 1]
+    }
+  }
+  
+  
+  if (max(check_dataset[, check]) == 1){
+    stop("Dates are not in chronological order ")
+  }
   
   
   dataset <- dataset[, splitted := 0]
@@ -109,7 +151,6 @@ SlitTimeIntervals <- function(dataset,
   if(!include_NA_intervals){
     DT_splitted <- DT_splitted[!is.na(value1)]
   }
-  
   
   setnames(DT_splitted, 
            c("variable", "value1", "value2", "start_date", "end_date"),
