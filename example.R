@@ -1,21 +1,23 @@
-##############
-dataset <- fread("examples/input/input.csv")
-dataset <- dataset[, start_date := as.Date(start_date)]
-dataset <- dataset[, end_date := as.Date(end_date)]
-dataset <- dataset[, intermediate_date := as.Date(intermediate_date)]
+source("SplitTimeIntervals.R")
+library(data.table)
 
-DT_splitted <- SlitTimeIntervals(dataset = dataset,
+##############
+example_1 <- fread("examples/input/input.csv")
+example_1 <- example_1[, start_date := as.Date(start_date)]
+example_1 <- example_1[, end_date := as.Date(end_date)]
+example_1 <- example_1[, intermediate_date := as.Date(intermediate_date)]
+
+DT_splitted <- SlitTimeIntervals(dataset = example_1,
                                  id = "id",
                                  start_date = "start_date",
                                  end_date = "end_date",
+                                 id_vars = c(),
                                  start_intervals = list("intermediate_date") ,
                                  label_of_split_records = c("first", "second"),
                                  labelvar = "interval"
                                  )
 
-
 ##############
-
 dataset <- fread("examples/input/example_2.csv")
 
 dataset <- dataset[, date_split_1 := as.Date(date_split_1)]

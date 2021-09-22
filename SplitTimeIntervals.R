@@ -31,13 +31,29 @@ SlitTimeIntervals <- function(dataset,
   if (!require("lubridate")) install.packages("lubridate")
   library(lubridate)
   
-  # check
+  ## check: vars
+  for (var in c(id_vars, start_intervals, start_date, end_date, id)) {
+    if(!(var %in% names(dataset))){
+      stop(paste0("The variable ", var, " is not present in the dataset"))
+    }
+  }
+  
+  ## check: label_of_split_records
+  if (!is.null(label_of_split_records)){
+    if (length(label_of_split_records) < length(start_intervals)+1){
+      stop("The length of label_of_split_records does not match the number of start_intervals")
+    }
+  }
+
+  
+  # check: date format
   for (date in c(start_date, end_date, start_intervals)) {
     if(!is.Date(dataset[, get(date)])){
       stop("One or more date variable are not in date format")
     }
   }
   
+  # check: chronological order
   check_dataset <- copy(dataset)
   check_dataset <- check_dataset[, check := 0]
   
@@ -72,11 +88,9 @@ SlitTimeIntervals <- function(dataset,
     }
   }
   
-  
   if (max(check_dataset[, check]) == 1){
     stop("Dates are not in chronological order ")
   }
-  
   
   ## Function 
   
@@ -133,11 +147,11 @@ SlitTimeIntervals <- function(dataset,
            c(paste0("period_", i, "_end")))
   
   DT_splitted = melt(dataset, 
-                     id.vars = c("id", "start_date", "end_date", id_vars),
+                     id.vars = c(id, "start_date", "end_date", id_vars),
                      measure.vars = list(paste0("period_", seq(1, i), "_start"), 
                                          paste0("period_", seq(1, i), "_end")))
 
-  DT_splitted <- DT_splitted[order(id)]
+  DT_splitted <- DT_splitted[order(get(id))]
   
   ## Rename interval
   DT_splitted[, variable:= as.character(variable)]
