@@ -5,6 +5,7 @@
 #' @param id (str): name of the variable containing the identifier of the record
 #' @param start_date (date): name of the variable containing the start date of record; the variable must be a date variable
 #' @param end_date (date): name of the variable containing the end date of record; the variable must be a date variable
+#' @param id_vars (vector): a vector containing all the constant variables (excluding id, start_date and end_date) 
 #' @param start_intervals (list of strings): list of variable names, each containing a date
 #' @param label_of_split_records (list of strings): list of labels that each new record will contain
 #' @param labelvar (str): name of the variable containing the labels of the new records
@@ -17,6 +18,7 @@ SlitTimeIntervals <- function(dataset,
                               id,
                               start_date,
                               end_date,
+                              id_vars = c(),
                               start_intervals,
                               label_of_split_records = NULL,
                               labelvar = "interval",
@@ -61,10 +63,6 @@ SlitTimeIntervals <- function(dataset,
                                    get(start_intervals[[length(start_intervals)]]) !=  as.Date("9999-12-31"),
                                  check := 1]
   
-  setnames(check_dataset, 
-           date,
-           "tmp_date")
-  
   if(length(start_intervals) > 1){
     for (i in seq(2, length(start_intervals))) {
       check_dataset <- check_dataset[get(start_intervals[[i-1]]) > get(start_intervals[[i]]) | 
@@ -79,6 +77,8 @@ SlitTimeIntervals <- function(dataset,
     stop("Dates are not in chronological order ")
   }
   
+  
+  ## Function 
   
   dataset <- dataset[, splitted := 0]
   number_of_intervals <- length(start_intervals) + 1
@@ -133,7 +133,7 @@ SlitTimeIntervals <- function(dataset,
            c(paste0("period_", i, "_end")))
   
   DT_splitted = melt(dataset, 
-                     id.vars = c("id", "start_date", "end_date"),
+                     id.vars = c("id", "start_date", "end_date", id_vars),
                      measure.vars = list(paste0("period_", seq(1, i), "_start"), 
                                          paste0("period_", seq(1, i), "_end")))
 
