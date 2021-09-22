@@ -2,7 +2,7 @@
 #' 
 #' 
 #' @param dataset (str): name of the data.table input dataset
-#' @param id (str): name of the variable containing the identifier of the record
+#' @param id_SlitTimeIntervals (str): name of the variable containing the identifier of the record
 #' @param start_date (date): name of the variable containing the start date of record; the variable must be a date variable
 #' @param end_date (date): name of the variable containing the end date of record; the variable must be a date variable
 #' @param id_vars (vector): a vector containing all the constant variables (excluding id, start_date and end_date) 
@@ -15,7 +15,7 @@
 
 
 SlitTimeIntervals <- function(dataset,
-                              id,
+                              id_SlitTimeIntervals,
                               start_date,
                               end_date,
                               id_vars = c(),
@@ -32,7 +32,7 @@ SlitTimeIntervals <- function(dataset,
   library(lubridate)
   
   ## check: vars
-  for (var in c(id_vars, start_intervals, start_date, end_date, id)) {
+  for (var in c(id_vars, start_intervals, start_date, end_date, id_SlitTimeIntervals)) {
     if(!(var %in% names(dataset))){
       stop(paste0("The variable ", var, " is not present in the dataset"))
     }
@@ -147,11 +147,11 @@ SlitTimeIntervals <- function(dataset,
            c(paste0("period_", i, "_end")))
   
   DT_splitted = melt(dataset, 
-                     id.vars = c(id, "start_date", "end_date", id_vars),
+                     id.vars = c(id_SlitTimeIntervals, "start_date", "end_date", id_vars),
                      measure.vars = list(paste0("period_", seq(1, i), "_start"), 
                                          paste0("period_", seq(1, i), "_end")))
 
-  DT_splitted <- DT_splitted[order(get(id))]
+  DT_splitted <- DT_splitted[order(get(id_SlitTimeIntervals))]
   
   ## Rename interval
   DT_splitted[, variable:= as.character(variable)]

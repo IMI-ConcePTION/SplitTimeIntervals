@@ -7,8 +7,10 @@ example_1 <- example_1[, start_date := as.Date(start_date)]
 example_1 <- example_1[, end_date := as.Date(end_date)]
 example_1 <- example_1[, intermediate_date := as.Date(intermediate_date)]
 
+example_1 <- example_1[, person_id := id]
+
 DT_splitted <- SlitTimeIntervals(dataset = example_1,
-                                 id = "id",
+                                 id_SlitTimeIntervals = "person_id",
                                  start_date = "start_date",
                                  end_date = "end_date",
                                  id_vars = c(),
