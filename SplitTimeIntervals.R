@@ -49,6 +49,10 @@ SplitTimeIntervals <- function(dataset,
   for (date in c(start_date, end_date, start_intervals)) {
     if(!is.Date(dataset[, get(date)])){
       stop("One or more date variable are not in date format")
+    }else{
+      setnames(dataset, date, "date_tmp")
+      dataset <- dataset[, date_tmp:= as.Date(date_tmp)]
+      setnames(dataset, "date_tmp", date)
     }
   }
   
